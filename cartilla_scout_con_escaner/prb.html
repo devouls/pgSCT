@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Escáner Cuadro de Adelanto — Tazumal 97</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #10b981;
+      --accent-dark: #059669;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { margin: 0; background: var(--bg); color: var(--text); padding: 16px; }
+    .container { max-width: 900px; margin: 0 auto; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    h1, h2 { margin: 0 0 10px 0; font-size: 1.25rem; }
+    p { color: var(--muted); margin: 0 0 12px 0; font-size: 0.92rem; }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+    input[type="password"], input[type="text"], input[type="file"] {
+      background: #0f172a; color: var(--text); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 10px; font-size: 0.9rem;
+    }
+    input[type="password"] { min-width: 260px; flex: 1; }
+    button {
+      background: var(--accent); color: #06281e; border: none; border-radius: 8px;
+      padding: 9px 14px; font-weight: 600; cursor: pointer; font-size: 0.9rem;
+    }
+    button:hover { background: var(--accent-dark); color: #fff; }
+    button.secondary { background: #334155; color: var(--text); }
+    button.secondary:hover { background: #475569; }
+    video, img.preview {
+      width: 100%; max-height: 360px; object-fit: contain;
+      background: #020617; border: 2px dashed var(--border); border-radius: 10px;
+    }
+    .progress-wrap { background: #0f172a; border-radius: 999px; height: 14px; overflow: hidden; border: 1px solid var(--border); }
+    .progress-bar { height: 100%; width: 0%; background: var(--accent); transition: width 0.25s ease; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.86rem; margin-top: 10px; }
+    th, td { border: 1px solid var(--border); padding: 7px 8px; text-align: left; }
+    th { background: #0f172a; color: #e2e8f0; }
+    td input[type="text"] { width: 100%; padding: 5px 7px; font-size: 0.84rem; }
+    pre {
+      background: #020617; border: 1px solid var(--border); border-radius: 8px;
+      padding: 12px; overflow-x: auto; font-size: 0.8rem; color: #a7f3d0;
+    }
+    .status { font-size: 0.88rem; color: #6ee7b7; min-height: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>Escáner de Cuadro de Adelanto — Aspirante Rover</h1>
+      <p>Grupo Scout Tazumal 97 · Clan Rover Vachalal Ah Puch. Enfoca únicamente la tabla de 16 pruebas.</p>
+      <div class="row">
+        <input id="apiKeyInput" type="password" placeholder="Pega tu Gemini API Key (opcional si usas Simulación Offline)" />
+        <button class="secondary" id="simBtn" type="button">Simulación Offline</button>
+        <button id="analyzeBtn" type="button">Escanear con IA</button>
+      </div>
+      <div class="status" id="statusText">Listo para capturar foto, subir imagen o probar en simulación.</div>
+    </div>
+
+    <div class="card">
+      <h2>1. Captura o Imagen del Cuadro</h2>
+      <div class="row">
+        <button class="secondary" id="startCamBtn" type="button">Abrir Cámara</button>
+        <button class="secondary" id="snapBtn" type="button">Tomar Foto</button>
+        <input id="fileInput" type="file" accept="image/*" />
+      </div>
+      <video id="video" autoplay playsinline style="display:none;"></video>
+      <canvas id="canvas" style="display:none;"></canvas>
+      <img id="previewImg" class="preview" alt="Vista previa del cuadro de adelanto" />
+    </div>
+
+    <div class="card">
+      <h2>2. Progreso y Validación (16 Pruebas)</h2>
+      <div class="row" style="justify-content: space-between;">
+        <strong id="progressLabel">Avance: 0 / 16 (0%)</strong>
+        <button id="confirmBtn" type="button">Confirmar y Exportar JSON</button>
+      </div>
+      <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Prueba</th>
+              <th>Fecha Prog.</th>
+              <th>Fecha Aprob.</th>
+              <th>Firma</th>
+              <th>Aprobado</th>
+            </tr>
+          </thead>
+          <tbody id="pruebasBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>3. Salida JSON Estructurada</h2>
+      <div class="row">
+        <button class="secondary" id="copyJsonBtn" type="button">Copiar JSON</button>
+      </div>
+      <pre id="jsonOutput">{}</pre>
+    </div>
+  </div>
+
+  <script>
+    const PRUEBAS_BASE = [
+      "UN MES COMO ASPIRANTE",
+      "INSCRIPCION ROVER (ASES)",
+      "UNIFORME ROVER",
+      "ORACION ROVER (OTRAS)",
+      "PROMESA ROVER",
+      "LEY SCOUT",
+      "VIRTUDES Y PRINCIPIOS SCOUT",
+      "LEMA ROVER, INSIGNIA SCOUT",
+      "SEÑA Y SALUDO ROVER",
+      "NUDOS BASICOS",
+      "PISTAS",
+      "ORDENES CON SILBATO",
+      "SEÑALES DE BRAZO, FORMACIONES",
+      "HISTORIA DEL APRETON DE MANOS",
+      "HISTORIA DEL ESCULTISMO",
+      "NOMBRE TOTEM"
+    ];
+
+    let datosActuales = {
+      seccion: "cuadro_adelanto_aspirante",
+      etapa: "escudero_rover",
+      fecha_programada_promesa: null,
+      observaciones: "",
+      pruebas: PRUEBAS_BASE.map((nombre, idx) => ({
+        numero: idx + 1,
+        nombre,
+        fecha_programada: "",
+        fecha_aprobada: "",
+        tiene_firma: false,
+        aprobado: false
+      }))
+    };
+
+    let imagenBase64 = null;
+    let imagenMime = "image/jpeg";
+    let streamActivo = null;
+
+    const statusText = document.getElementById("statusText");
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const previewImg = document.getElementById("previewImg");
+    const pruebasBody = document.getElementById("pruebasBody");
+    const jsonOutput = document.getElementById("jsonOutput");
+
+    function setStatus(msg) {
+      statusText.textContent = msg;
+    }
+
+    function actualizarProgresoYJson() {
+      const total = datosActuales.pruebas.length;
+      const aprobadas = datosActuales.pruebas.filter(p => p.aprobado).length;
+      const pct = Math.round((aprobadas / total) * 100);
+      document.getElementById("progressLabel").textContent = `Avance: ${aprobadas} / ${total} (${pct}%)`;
+      document.getElementById("progressBar").style.width = `${pct}%`;
+      jsonOutput.textContent = JSON.stringify(datosActuales, null, 2);
+    }
+
+    function renderTabla() {
+      pruebasBody.innerHTML = "";
+      datosActuales.pruebas.forEach((p, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${p.numero}</td>
+          <td>${p.nombre}</td>
+          <td><input type="text" value="${p.fecha_programada || ""}" data-idx="${i}" data-field="fecha_programada" placeholder="dd/mm/aa" /></td>
+          <td><input type="text" value="${p.fecha_aprobada || ""}" data-idx="${i}" data-field="fecha_aprobada" placeholder="dd/mm/aa" /></td>
+          <td style="text-align:center;"><input type="checkbox" ${p.tiene_firma ? "checked" : ""} data-idx="${i}" data-field="tiene_firma" /></td>
+          <td style="text-align:center;"><input type="checkbox" ${p.aprobado ? "checked" : ""} data-idx="${i}" data-field="aprobado" /></td>
+        `;
+        pruebasBody.appendChild(tr);
+      });
+      actualizarProgresoYJson();
+    }
+
+    pruebasBody.addEventListener("input", (e) => {
+      const idx = Number(e.target.dataset.idx);
+      const field = e.target.dataset.field;
+      if (Number.isNaN(idx) || !field) return;
+      if (e.target.type === "checkbox") {
+        datosActuales.pruebas[idx][field] = e.target.checked;
+      } else {
+        datosActuales.pruebas[idx][field] = e.target.value;
+      }
+      actualizarProgresoYJson();
+    });
+
+    document.getElementById("startCamBtn").addEventListener("click", async () => {
+      try {
+        streamActivo = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: "environment" } },
+          audio: false
+        });
+        video.srcObject = streamActivo;
+        video.style.display = "block";
+        setStatus("Cámara activa. Encuadra el cuadro de adelanto y presiona 'Tomar Foto'.");
+      } catch (err) {
+        setStatus("No se pudo abrir la cámara. Usa 'Seleccionar archivo' para subir una foto.");
+      }
+    });
+
+    document.getElementById("snapBtn").addEventListener("click", () => {
+      if (!video.srcObject) {
+        setStatus("Primero abre la cámara o sube una imagen.");
+        return;
+      }
+      canvas.width = video.videoWidth || 1280;
+      canvas.height = video.videoHeight || 720;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+      previewImg.src = dataUrl;
+      imagenBase64 = dataUrl.split(",")[1];
+      imagenMime = "image/jpeg";
+      setStatus("Foto capturada. Ya puedes pulsar 'Escanear con IA'.");
+    });
+
+    document.getElementById("fileInput").addEventListener("change", (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        previewImg.src = reader.result;
+        imagenBase64 = String(reader.result).split(",")[1];
+        imagenMime = file.type || "image/jpeg";
+        setStatus(`Imagen cargada (${file.name}). Pulsa 'Escanear con IA'.`);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById("simBtn").addEventListener("click", () => {
+      datosActuales.fecha_programada_promesa = "15/12/2026";
+      datosActuales.observaciones = "Simulación de prueba local";
+      datosActuales.pruebas = datosActuales.pruebas.map((p, idx) => {
+        const completada = idx < 5;
+        return {
+          ...p,
+          fecha_programada: idx < 8 ? "10/11/2026" : "",
+          fecha_aprobada: completada ? "18/11/2026" : "",
+          tiene_firma: completada,
+          aprobado: completada
+        };
+      });
+      renderTabla();
+      setStatus("Simulación offline cargada: 5 de 16 pruebas marcadas como aprobadas.");
+    });
+
+    document.getElementById("analyzeBtn").addEventListener("click", async () => {
+      const apiKey = document.getElementById("apiKeyInput").value.trim();
+      if (!apiKey) {
+        setStatus("Ingresa tu Gemini API Key o usa 'Simulación Offline'.");
+        return;
+      }
+      if (!imagenBase64) {
+        setStatus("Primero toma una foto o sube una imagen del cuadro.");
+        return;
+      }
+
+      setStatus("Enviando imagen a Gemini para extraer las 16 pruebas...");
+      const prompt = `Analiza esta imagen del Cuadro de Adelanto para el Aspirante (Clan Rover Vachalal Ah Puch).
+Extrae exclusivamente las 16 pruebas en orden (1 a 16) con: numero, nombre, fecha_programada, fecha_aprobada, tiene_firma (booleano) y aprobado (booleano si tiene firma o fecha aprobada).
+Responde SOLO con JSON válido con esta estructura:
+{
+  "seccion": "cuadro_adelanto_aspirante",
+  "etapa": "escudero_rover",
+  "fecha_programada_promesa": "",
+  "observaciones": "",
+  "pruebas": [
+    { "numero": 1, "nombre": "...", "fecha_programada": "", "fecha_aprobada": "", "tiene_firma": false, "aprobado": false }
+  ]
+}`;
+
+      try {
+        const resp = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{
+                parts: [
+                  { text: prompt },
+                  { inline_data: { mime_type: imagenMime, data: imagenBase64 } }
+                ]
+              }],
+              generationConfig: { responseMimeType: "application/json" }
+            })
+          }
+        );
+
+        const data = await resp.json();
+        if (!resp.ok) {
+          throw new Error(data.error?.message || "Error al llamar a Gemini API");
+        }
+
+        const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        const parsed = JSON.parse(rawText);
+        if (Array.isArray(parsed.pruebas) && parsed.pruebas.length === 16) {
+          datosActuales = parsed;
+          renderTabla();
+          setStatus("Lectura completada. Revisa la tabla y confirma los datos.");
+        } else {
+          setStatus("La respuesta no devolvió las 16 pruebas completas; revisa la imagen.");
+        }
+      } catch (err) {
+        setStatus(`Error: ${err.message}`);
+      }
+    });
+
+    document.getElementById("confirmBtn").addEventListener("click", () => {
+      localStorage.setItem("ultimo_cuadro_rover", JSON.stringify(datosActuales));
+      actualizarProgresoYJson();
+      setStatus("Datos confirmados y guardados en localStorage ('ultimo_cuadro_rover').");
+    });
+
+    document.getElementById("copyJsonBtn").addEventListener("click", async () => {
+      await navigator.clipboard.writeText(JSON.stringify(datosActuales, null, 2));
+      setStatus("JSON copiado al portapapeles.");
+    });
+
+    renderTabla();
+  </script>
+</body>
+</html>
