@@ -1,4 +1,6 @@
-const pruebasData = [
+const STORAGE_KEY_CARTILLA_ROVER = "cartilla_rover_vachalal_2026_097_data";
+
+const pruebasDataDefault = [
     { id: 1, titulo: "Un Mes como Aspirante", estado: "pendiente", teoria: "A) Si el aspirante fue traspasado de la Tropa Tazumal #97, deberá cumplir con un mes como aspirante de clan.\nB) Si el aspirante no perteneció a la Tropa Tazumal #97 y se integró directamente al Clan Vachalal Ah Puch, deberá cumplir con un periodo de 3 meses.\n\nEn ambos casos, el aspirante debe asistir sin interrupción a las actividades del clan.", fechaProg: "", fechaAprob: "", sinodal: "", firmaImagen: "" },
     { id: 2, titulo: "Inscripción Rover (ASES)", estado: "pendiente", teoria: "Todo aspirante del Clan Vachalal Ah Puch debe cumplir el requisito de inscripción a la Asociación de Scouts de El Salvador (ASES) para ser reconocido como miembro activo del Movimiento Scout Mundial.\n\nRequiere la cancelación de la cuota de inscripción anual.", fechaProg: "", fechaAprob: "", sinodal: "", firmaImagen: "" },
     { id: 3, titulo: "Uniforme Rover", estado: "pendiente", teoria: "Conocer el correcto uso y ubicación de cada elemento del uniforme scout:\n- Gorra azul oscuro e Insignia Mundial\n- Matrícula e Insignia Nacional\n- Cinta de Departamento y No. de Grupo\n- Pañoleta y Cinta de cargo\n- Especialidades e Insignia de Compromiso\n- Camisa, cincho, pantalón/falda/jeans y medias azul oscuro.", fechaProg: "", fechaAprob: "", sinodal: "", firmaImagen: "" },
@@ -17,34 +19,92 @@ const pruebasData = [
     { id: 16, titulo: "Nombre Tótem", estado: "pendiente", teoria: "El nombre tótem se escoge de las áreas del Reino Animal o Mitología. En el Grupo Scout Tazumal 97, de preferencia debe ser traducido al náhuatl.", fechaProg: "", fechaAprob: "", sinodal: "", firmaImagen: "" }
 ];
 
+function cargarPruebasGuardadas() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY_CARTILLA_ROVER);
+        if (!raw) return pruebasDataDefault.map(p => ({ ...p }));
+        const guardadas = JSON.parse(raw);
+        if (!Array.isArray(guardadas) || guardadas.length === 0) {
+            return pruebasDataDefault.map(p => ({ ...p }));
+        }
+        return pruebasDataDefault.map(base => {
+            const match = guardadas.find(g => g.id === base.id);
+            return match ? { ...base, ...match } : { ...base };
+        });
+    } catch (_) {
+        return pruebasDataDefault.map(p => ({ ...p }));
+    }
+}
+
+function guardarPruebasEnStorage() {
+    try {
+        localStorage.setItem(STORAGE_KEY_CARTILLA_ROVER, JSON.stringify(pruebasData));
+    } catch (_) {}
+}
+
+let pruebasData = cargarPruebasGuardadas();
 let pruebaSeleccionadaId = null;
 let rolActual = "aspirante";
 let signaturePad = null;
+
+function ajustarTamanoCanvasFirma() {
+    const canvas = document.getElementById('signatureCanvas');
+    if (!canvas || typeof SignaturePad === 'undefined') return;
+
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    const rect = canvas.getBoundingClientRect();
+    const width = rect.width > 0 ? rect.width : 400;
+    const height = rect.height > 0 ? rect.height : 130;
+
+    canvas.width = Math.floor(width * ratio);
+    canvas.height = Math.floor(height * ratio);
+
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(ratio, ratio);
+
+    if (!signaturePad) {
+        signaturePad = new SignaturePad(canvas, {
+            backgroundColor: 'rgb(255, 255, 255)'
+        });
+    } else {
+        const dataActual = signaturePad.toData();
+        signaturePad.clear();
+        if (dataActual && dataActual.length > 0) {
+            signaturePad.fromData(dataActual);
+        }
+    }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     renderizarListaPruebas(pruebasData);
     renderizarMapaIslas(pruebasData);
     actualizarProgreso();
+    ajustarTamanoCanvasFirma();
 
-    // Inicializar el pad de firmas en el canvas
-    const canvas = document.getElementById('signatureCanvas');
-    if (canvas) {
-        signaturePad = new SignaturePad(canvas, {
-            backgroundColor: 'rgb(255, 255, 255)'
-        });
-    }
+    window.addEventListener('resize', () => {
+        if (rolActual === 'dirigente' && pruebaSeleccionadaId !== null) {
+            ajustarTamanoCanvasFirma();
+            const prueba = pruebasData.find(p => p.id === pruebaSeleccionadaId);
+            if (prueba && prueba.firmaImagen && signaturePad) {
+                signaturePad.clear();
+                signaturePad.fromDataURL(prueba.firmaImagen);
+            }
+        }
+    });
 
     // Botón para limpiar la firma
     const btnLimpiarFirma = document.getElementById('btnLimpiarFirma');
-    if (btnLimpiarFirma && signaturePad) {
+    if (btnLimpiarFirma) {
         btnLimpiarFirma.addEventListener('click', () => {
-            signaturePad.clear();
+            if (signaturePad) signaturePad.clear();
         });
     }
 
     // Selector de Rol (Aspirante / Dirigente)
     const selectRol = document.getElementById('selectRol');
     if (selectRol) {
+        rolActual = selectRol.value || 'aspirante';
         selectRol.addEventListener('change', (e) => {
             rolActual = e.target.value;
             if (pruebaSeleccionadaId !== null) {
@@ -88,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         th { background-color: #2d3748; color: white; }
                         .badge-aprobado { color: #22543d; font-weight: bold; background: #c6f6d5; padding: 3px 8px; border-radius: 4px; }
                         .badge-pendiente { color: #4a5568; font-weight: bold; background: #edf2f7; padding: 3px 8px; border-radius: 4px; }
-                        .img-firma { max-height: 45px; max-width: 120px; display: block; }
+                        .img-firma { max-height: 45px; max-width: 120px; display: block; margin: 0 auto; }
                         .footer-firmas { display: flex; justify-content: space-between; margin-top: 50px; text-align: center; font-size: 0.9rem; }
                         .linea-firma { border-top: 1px solid #2d3748; width: 220px; margin: 40px auto 5px auto; }
                         @media print { body { padding: 10px; } }
@@ -157,8 +217,10 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
 
             let ventanaReporte = window.open('', '_blank');
-            ventanaReporte.document.write(htmlVentana);
-            ventanaReporte.document.close();
+            if (ventanaReporte) {
+                ventanaReporte.document.write(htmlVentana);
+                ventanaReporte.document.close();
+            }
         });
     }
 
@@ -168,17 +230,18 @@ document.addEventListener('DOMContentLoaded', () => {
         btnFirmar.addEventListener('click', () => {
             if (pruebaSeleccionadaId === null) return;
             const prueba = pruebasData.find(p => p.id === pruebaSeleccionadaId);
-            
+            if (!prueba) return;
+
             const fProg = document.getElementById('inputFechaProg').value;
             const fAprob = document.getElementById('inputFechaAprob').value;
-            const sinodalNombre = document.getElementById('inputSinodal').value;
+            const sinodalNombre = document.getElementById('inputSinodal').value.trim();
 
             if (!sinodalNombre) {
                 alert("Por favor ingresa el nombre del sinodal.");
                 return;
             }
 
-            if (signaturePad.isEmpty()) {
+            if (!signaturePad || signaturePad.isEmpty()) {
                 alert("Por favor traza la firma en el recuadro blanco.");
                 return;
             }
@@ -186,11 +249,12 @@ document.addEventListener('DOMContentLoaded', () => {
             prueba.fechaProg = fProg;
             prueba.fechaAprob = fAprob || new Date().toISOString().split('T')[0];
             prueba.sinodal = sinodalNombre;
-            prueba.firmaImagen = signaturePad.toDataURL(); // Guardar trazo en formato imagen
+            prueba.firmaImagen = signaturePad.toDataURL("image/png");
             prueba.estado = 'aprobada';
 
+            guardarPruebasEnStorage();
             alert(`¡Prueba #${prueba.id} aprobada y firmada digitalmente con éxito!`);
-            
+
             seleccionarPrueba(prueba.id);
             actualizarProgreso();
             renderizarMapaIslas(pruebasData);
@@ -266,6 +330,7 @@ function renderizarMapaIslas(data) {
 function seleccionarPrueba(id) {
     pruebaSeleccionadaId = id;
     const prueba = pruebasData.find(p => p.id === id);
+    if (!prueba) return;
 
     const welcomeCard = document.getElementById('welcomeCard');
     const pruebaDetail = document.getElementById('pruebaDetail');
@@ -281,24 +346,24 @@ function seleccionarPrueba(id) {
     document.getElementById('inputFechaAprob').value = prueba.fechaAprob || '';
     document.getElementById('inputSinodal').value = prueba.sinodal || '';
 
-    if (signaturePad) {
-        signaturePad.clear();
-        if (prueba.firmaImagen) {
-            signaturePad.fromDataURL(prueba.firmaImagen);
-        }
-    }
-
     // Control de visibilidad según el rol activo
     const panelSinodal = document.getElementById('panelSinodal');
     if (rolActual === 'dirigente') {
         panelSinodal.style.display = 'block';
+        ajustarTamanoCanvasFirma();
+        if (signaturePad) {
+            signaturePad.clear();
+            if (prueba.firmaImagen) {
+                signaturePad.fromDataURL(prueba.firmaImagen);
+            }
+        }
     } else {
         panelSinodal.style.display = 'none';
     }
 
     const infoEstado = document.getElementById('infoFirmaEstado');
     const previewFirma = document.getElementById('previewFirmaContainer');
-    
+
     if (prueba.estado === 'aprobada') {
         infoEstado.innerHTML = `✅ <strong>Aprobado y Firmado</strong> por: ${prueba.sinodal} (Fecha: ${prueba.fechaAprob})`;
         infoEstado.style.color = '#22543d';
