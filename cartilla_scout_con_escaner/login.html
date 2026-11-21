@@ -6,145 +6,347 @@
   <title>Acceso — Clan Rover Vachalal Ah Puch</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #1e293b;
+      --bg: #070709;
+      --panel: rgba(16, 14, 16, 0.94);
+      --card-inner: rgba(20, 16, 18, 0.92);
       --text: #f8fafc;
-      --muted: #94a3b8;
-      --accent: #10b981;
-      --accent-dark: #059669;
-      --border: #334155;
+      --muted: #a1a1aa;
+      --red: #dc2626;
+      --red-dark: #991b1b;
+      --red-glow: rgba(220, 38, 38, 0.34);
+      --yellow: #facc15;
+      --yellow-soft: #fde047;
+      --border: rgba(220, 38, 38, 0.42);
+      --border-muted: #27272a;
     }
-    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
     body {
       margin: 0;
-      background: var(--bg);
+      background:
+        radial-gradient(circle at 22% 50%, rgba(185, 28, 28, 0.18), transparent 55%),
+        radial-gradient(circle at 82% 82%, rgba(250, 204, 21, 0.08), transparent 45%),
+        var(--bg);
       color: var(--text);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 16px;
-    }
-    .app-shell {
-      width: 100%;
-      max-width: 860px;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
       padding: 20px;
+      overflow-x: hidden;
     }
+
+    /* Contenedor dividido: Pulpo a la izquierda, Login a la derecha */
+    .split-layout {
+      width: 100%;
+      max-width: 1240px;
+      display: grid;
+      grid-template-columns: 1.25fr 0.85fr;
+      align-items: center;
+      gap: 28px;
+    }
+
+    /* Cuando se entra al Home, ocupa el ancho normal centrado */
+    .split-layout.home-active {
+      grid-template-columns: 1fr;
+      max-width: 880px;
+    }
+
+    .split-layout.home-active .octopus-stage {
+      display: none;
+    }
+
+    /* Escenario libre del pulpo a la izquierda */
+    .octopus-stage {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      overflow: hidden;
+      padding: 8px 0;
+    }
+
+    .ascii-art {
+      margin: 0;
+      font-family: "DejaVu Sans Mono", Consolas, "Courier New", monospace;
+      font-size: clamp(0.32rem, 0.72vw, 0.62rem);
+      line-height: 1.06;
+      color: #ef4444;
+      text-shadow: 0 0 11px var(--red-glow);
+      white-space: pre;
+      user-select: none;
+    }
+
+    .card {
+      background: var(--panel);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.82), 0 0 28px rgba(220, 38, 38, 0.14);
+      border-radius: 16px;
+      padding: 26px;
+    }
+
     .login-card {
+      width: 100%;
       max-width: 420px;
-      margin: 0 auto;
+      justify-self: end;
     }
-    h1, h3 { margin: 0 0 8px 0; }
-    h1 { font-size: 1.35rem; }
-    p { color: var(--muted); margin: 0 0 14px 0; font-size: 0.92rem; line-height: 1.4; }
+
+    .kicker {
+      font-family: Consolas, monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--yellow);
+      margin-bottom: 6px;
+      display: block;
+      font-weight: 700;
+    }
+
+    h1, h3 {
+      margin: 0 0 8px 0;
+    }
+
+    h1 {
+      font-size: 1.42rem;
+      letter-spacing: -0.01em;
+    }
+
+    p {
+      color: var(--muted);
+      margin: 0 0 14px 0;
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
     label {
       display: block;
-      font-size: 0.85rem;
-      color: #cbd5e1;
+      font-size: 0.84rem;
+      color: #e4e4e7;
       margin-bottom: 5px;
+      font-weight: 500;
     }
-    input[type="text"], input[type="password"] {
+
+    input[type="text"],
+    input[type="password"] {
       width: 100%;
-      background: #0f172a;
+      background: #09090b;
       color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 8px;
+      border: 1px solid #3f3f46;
+      border-radius: 9px;
       padding: 10px 12px;
       font-size: 0.95rem;
-      margin-bottom: 12px;
+      margin-bottom: 13px;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      border-color: var(--yellow);
+      box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.18);
+    }
+
     button {
-      background: var(--accent);
-      color: #052e16;
-      border: none;
-      border-radius: 8px;
+      background: linear-gradient(135deg, #ef4444, var(--red-dark));
+      color: #ffffff;
+      border: 1px solid rgba(250, 204, 21, 0.45);
+      border-radius: 9px;
       padding: 10px 16px;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
       font-size: 0.92rem;
+      transition: transform 0.12s, filter 0.15s, box-shadow 0.15s;
     }
-    button:hover { background: var(--accent-dark); color: #fff; }
+
+    button:hover {
+      filter: brightness(1.1);
+      box-shadow: 0 0 16px rgba(250, 204, 21, 0.22);
+      transform: translateY(-1px);
+    }
+
     button.secondary {
-      background: #334155;
-      color: var(--text);
+      background: #141418;
+      color: #e4e4e7;
+      border: 1px solid #3f3f46;
       font-weight: 600;
     }
-    button.secondary:hover { background: #475569; }
-    button:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
+
+    button.secondary:hover {
+      background: #1f1f26;
+      border-color: var(--yellow);
+      box-shadow: none;
+      filter: none;
+      transform: none;
     }
+
+    button:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+      transform: none;
+      filter: none;
+      box-shadow: none;
+    }
+
     .error-msg {
-      color: #fca5a5;
-      background: rgba(239, 68, 68, 0.12);
-      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #fef08a;
+      background: rgba(153, 27, 27, 0.32);
+      border: 1px solid rgba(250, 204, 21, 0.45);
       border-radius: 8px;
-      padding: 8px 10px;
-      font-size: 0.86rem;
+      padding: 9px 11px;
+      font-size: 0.85rem;
       margin-bottom: 12px;
       display: none;
     }
+
     .topbar {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 16px;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(220, 38, 38, 0.28);
     }
+
     .badge {
       display: inline-block;
-      background: rgba(16, 185, 129, 0.15);
-      color: #6ee7b7;
-      border: 1px solid rgba(16, 185, 129, 0.35);
+      background: rgba(250, 204, 21, 0.14);
+      color: var(--yellow-soft);
+      border: 1px solid rgba(250, 204, 21, 0.42);
       padding: 4px 10px;
       border-radius: 999px;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 600;
     }
+
     .grid-modulos {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
       gap: 14px;
     }
+
     .modulo-card {
-      background: #0f172a;
-      border: 1px solid var(--border);
+      background: var(--card-inner);
+      border: 1px solid var(--border-muted);
       border-radius: 12px;
       padding: 16px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: 12px;
+      gap: 14px;
     }
-    .modulo-card.activo { border-color: var(--accent); }
-    .modulo-card.bloqueado { opacity: 0.65; }
+
+    .modulo-card.activo {
+      border-color: var(--red);
+      box-shadow: inset 0 0 20px rgba(220, 38, 38, 0.12), 0 0 0 1px rgba(250, 204, 21, 0.22);
+    }
+
+    .modulo-card.bloqueado {
+      opacity: 0.6;
+    }
+
     .tag-estado {
-      font-size: 0.75rem;
+      font-family: Consolas, monospace;
+      font-size: 0.72rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.05em;
       padding: 3px 8px;
       border-radius: 6px;
       display: inline-block;
       margin-bottom: 8px;
     }
-    .tag-activo { background: #064e3b; color: #6ee7b7; }
-    .tag-bloqueado { background: #1e293b; color: #94a3b8; }
-    .hidden { display: none !important; }
+
+    .tag-activo {
+      background: rgba(250, 204, 21, 0.16);
+      color: var(--yellow);
+      border: 1px solid rgba(250, 204, 21, 0.42);
+    }
+
+    .tag-bloqueado {
+      background: #141418;
+      color: #a1a1aa;
+      border: 1px solid #27272a;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 920px) {
+      .split-layout {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+      .octopus-stage {
+        justify-content: center;
+      }
+      .ascii-art {
+        font-size: clamp(0.28rem, 1.4vw, 0.5rem);
+      }
+      .login-card {
+        justify-self: center;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="app-shell">
-    <!-- VISTA 1: LOGIN -->
+  <div id="mainLayout" class="split-layout">
+    <!-- COLUMNA IZQUIERDA: PULPO COMPLETO SIN TAPAR -->
+    <div class="octopus-stage" aria-hidden="true">
+      <pre class="ascii-art">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⡶⠶⠿⠛⠛⠛⠛⠛⠶⠶⣦⣤⣀⠀⠀ ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣴⢿⠟⠁⠀⠠⠀⠄⠀⠔⠂⠠⠄⠀⠀⠈⠙⠛⢶ ⡄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⢿⢣⠏⠎⠀⠀⠀⠠⠀⢁⠊⠐⠀⡀⠉⠀⠀⠀⠀⠀ ⠈⠛⣦⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⠇⡎⢸⠸⡀⠁⡇⠀⡄⢂⠸⡀⠆⠀⠀⠀⠀⠀⠀⠀⠀ ⠀⠀⠀⠹⣧⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⢻⠀⡇⢸⡄⢿⠄⢃⠀⠐⡈⠠⠐⢄⠀⠂⠀⠀⠀⠀⠀⠀ ⠀⠀⠐⠤⠈⢿⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⣿⢸⠀⢷⠌⢷⡀⠳⣄⣂⠠⠌⠠⡈⠢⣈⠠⡁⢀⠐⠀⠀⡀ ⠀⠀⠐⠀⠀⠈⣿⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⠘⡖⡘⣾⣌⠻⣦⡀⠙⠳⢤⣀⠤⡑⢬⡀⠈⠠⠀⠈⠀⠀ ⠀⠀⠀⠂⠀⠀⢸⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⡇⢧⠠⣻⣼⡧⣄⡻⢧⣄⡀⠘⠻⢿⡤⣛⢤⠀⠀⠀⠀⣀ ⠃⠀⠀⠀⠃⠀⠀⢿⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡜⢛⣿⡃⠀⢛⡤⠠⠤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣆⢷⡌⢳⣌⠺⣝⡿⣿⣷⣮⣽⡳⢦⣄⠙⢮⠻⠄⠄⢀⠒⠠ ⠌⠄⠀⠀⠈⡄⠀⠘⢻⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⡾⠛⠉⠀⠀⠉⠉⠉⠑⠦⢤⡙⠲⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⣄⠻⣦⡙⠳⣮⣝⡳⣿⣿⣾⠿⣳⣝⢷⡀⢻⠦⠬⠐⠀⠄ ⢑⠒⠠⠄⠀⠐⠂⠀⠂⡜⣿⣦⠀⠀⠀⠀⠀⠀⠀⣼⠏⠀⠀⠀⣈⡬⠤⠧⣐⠀⠄⠀⠳⣄⣸⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠻⣧⣈⢛⠷⢤⣉⣛⣿⣿⣿⢼⡋⠙⣧⠻⢀⠐⠀⠈⠡⠌ ⠁⠊⡐⠂⠀⠈⣁⠀⠀⢠⢁⣿⠀⠀⠀⠀⠀⠀⢰⡏⠀⠀⢠⠏⠀⠀⠀⠀⠀⠙⢆⠂⡀⠸⠉⠙⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⣀⣤⠶⠖⠒⠚⠒⠒⠒⠤⠄⡀⠀⠀⠀⠀⠀⠈⠻⢷⣽⣓⠦⣭⣙⣻⣿⣿⣧⣿⣿⡱⠁⢠⣶⣦⣬⡁ ⠀⠐⠄⠀⠀⠀⠠⠤⢣⢀⣾⠏⠀⠀⠀⠀⠀⠀⠸⡇⠀⠈⢸⡀⠀⠀⠀⠀⠀⠀⠈⢇⠠⠀⢻⣦⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⢀⣴⠟⠉⠀⢀⣠⣤⠴⠴⠤⠦⣤⣄⡈⠑⠢⡀⠀⠀⠀⠀⠀⠉⠛⠿⢶⣷⣽⣿⣿⣿⣿⣿⠁⠀⣿⣏⠙⣿⣿ ⣦⣀⣹⠀⠀⠀⠀⠂⠈⣾⡏⠀⠀⠀⠀⠀⠀⠀⠀⢻⡀⠐⡀⢳⡄⠀⠀⠀⠀⠀⠀⢸⠀⠀⢸⢀⠈⡇⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⣤⡝⠁⠀⣠⡾⠋⠁⠀⠀⠀⠀⠀⠀⠈⠙⠶⣄⠉⢆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣿⣿⡀⢇⢣⡙⠿⢷⣿ ⣟⠏⡂⠁⢀⠀⢈⡁⠀⣿⠀⠀⠀⢀⢴⡄⠀⠀⠀⠀⠹⣄⠃⠀⢻⣆⠀⠀⠀⠀⠀⢨⠂⠐⢸⣾⢶⡇⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⢀⡎⡼⠀⢀⣰⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⣦⠈⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣼⣿⣿⣷⣮⣦⣈⡙⢋⣁ ⵵⣀⠔⠎⡠⠀⠀⠆⠒⣻⡀⠀⢠⠏⡜⠀⠀⠀⠀⠀⠀⠈⢳⣀⡀⢋⣆⠀⠀⠀⠀⢸⠁⠒⢸⢃⢈⡇⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠞⢻⠁⠀⣠⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⡆⣹⡀⠀⠀⠀⠀⠀⠀⣀⣤⡾⢻⢻⣿⣿⡳⣍⠛⠛⠛⠛⠋ ⠉⠀⠀⡀⠄⠀⠀⢊⢈⠼⣧⠀⢸⠀⢧⡀⠀⠀⠀⠀⠀⠀⠀⣱⠒⣸⢻⠀⠀⠀⢀⡎⠀⠐⡾⠺⡾⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⢸⣴⣎⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⣹⠁⠀⠀⠀⣠⡴⢚⠋⣇⣧⣼⣾⣿⠏⠛⠮⣍⠂⠄⠀⠤ ⠖⠂⠀⠐⠀⢁⠀⠀⡀⡐⠻⣧⠈⢧⡈⠳⣤⣀⡀⠀⠀⣀⡤⠏⢀⠞⡞⠀⠀⢀⡞⠀⠀⢺⣁⣰⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⡇⡀⡿⠀⠀⠸⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡼⡐⡎⠀⢀⡴⡞⣹⣰⣼⠿⠋⣏⣿⡿⠋⢀⠂⠠⠀⠀⠀⢀⠀ ⢀⠀⣀⣀⠀⠐⠀⠀⠤⢱⡀⠘⣧⡀⠛⢶⣤⠸⢍⡋⠏⠡⡴⠊⢙⠟⠀⢀⡴⠋⠀⠀⢀⠞⢹⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⢳⠷⣧⠠⠄⠀⢻⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⣖⣒⣒⣭⡆⠝⠀⣠⡟⣆⡷⠟⠉⢁⡀⣦⣿⠟⠁⠀⠆⡀⠠⢄⠀⠒⠀⠀ ⠤⠠⠤⠤⠔⠈⡡⠀⠀⠈⣧⠊⡀⠙⠶⣄⣈⠉⠛⠓⠦⠔⠈⠋⣀⣤⠖⠋⠀⠀⠀⢤⣼⡶⠃⣠⢔⣪⡭⢭⣥⡒⢄⡀⠀⠀
+⢸⢀⢸⠆⠀⠀⠈⢿⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠀⠀⠀⣰⣿⠟⢩⠀⡀⢧⣸⣿⡿⠃⠀⡀⠐⠠⢈⠑⠠⠈⠁⢀⠀ ⠀⢀⣨⣭⢁⡀⠀⠒⠀⠀⣿⣿⣀⠄⠀⠀⠉⠙⠛⠒⠒⠒⠛⠋⠉⠀⠀⠀⠀⡀⢰⣏⠜⠀⢰⢹⡋⠀⠀⠀⠀⠙⢳⡝⢆⠀
+⠈⣾⠞⢧⡐⠀⠀⠀⠙⢦⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠴⠋⢁⢠⠘⣆⢳⣾⡿⠋⠀⠀⠐⠀⣩⣾⣿⣿⣇⠀⠀⠠⣄ ⣑⣩⣷⣾⣿⣷⣆⢉⠀⠀⢹⣿⡛⢦⡅⡀⠠⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⠐⣄⡨⠞⠁⠀⠀⠀⠻⢗⣺⠟⠀⠀⠀⠀⢻⡆⢆
+⠀⠸⣤⡀⣩⣀⠀⠀⠀⠀⠉⠓⠶⢤⣄⣀⣀⣠⠤⠖⠋⠁⠀⢀⠸⣈⣧⣼⠿⠋⠀⠀⠀⢀⢁⣼⡿⠋⢹⣿⡇⠀⠀⠀⢢ ⣽⣿⠿⣵⣿⣿⣿⡄⢐⠀⠈⢿⣿⡷⣿⣗⣓⣼⠄⠣⢤⣠⡦⣤⣴⡦⠼⠚⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡸⢸
+⠀⠀⠻⣷⠟⠛⠲⣄⡀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠀⠀⠀⡀⢠⠸⣤⣿⠟⠋⠀⠀⠀⠀⠄⢨⣾⢿⣇⣴⣾⣿⠃⠀⢀⡒⣮ ⣿⣿⡆⠙⢿⣏⢹⣇⠈⠄⠀⠸⣿⣷⢻⣿⣿⠙⠶⠦⠚⠛⠃⠛⠉⠁⠀⠀⠀⠀⠀⠀⣀⡤⠴⠴⠦⢤⣀⠀⡀⠀⣀⣈⡃⡼
+⠀⠀⠀⠈⢷⣶⣄⣸⣷⠶⢤⣀⠀⠀⡀⢠⠀⡄⢰⣈⣦⣵⠾⠛⠉⠀⠀⠀⠀⠀⠄⢃⣴⡏⣠⣄⡿⠛⣽⠃⠀⡀⠀⢹⣿ ⣿⠃⠀⠀⠸⣿⡾⣿⠀⠂⣀⠀⠹⣿⣡⣦⢙⢷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠞⠁⠀⠀⢀⡀⠀⠈⠁⠚⠂⠔⢋⡴⠁
+⠀⠀⠀⠀⠀⠈⠛⠻⣇⠻⣷⣬⡿⠷⠖⠛⠛⠛⠉⠉⠁⠀⠀⠀⠀⠀⡀⠠⣈⣧⣾⡟⠉⣹⠿⠋⣠⠞⠁⠀⠠⢌⠑⣾⡇ ⡾⠈⠌⡁⢰⣿⣆⣸⣇⠁⠤⠀⠀⠹⣿⣿⡇⢀⠙⢷⣄⡀⠀⠀⠀⠀⠀⢀⡴⠊⠁⠀⣠⣴⠟⠋⠉⠙⠓⠖⠒⠒⠚⠉⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⢀⡬⠟⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠠⢀⣢⣼⣶⡿⠛⢛⣷⡿⣃⡴⠟⠁⠀⠀⢀⡐⢦⣿⠿⢻ ⠇⠐⠂⢀⡾⠻⣿⠟⠻⣆⠂⡁⠀⠀⠙⣷⢹⣷⣄⡀⠈⠙⠓⠶⠶⠶⠚⠉⠀⢀⡰⠶⡷⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⣰⠋⠀⠀⢀⠀⣄⣤⡰⡴⢦⣷⠼⠖⢷⡿⠚⠛⣿⠋⠉⣹⣦⡶⣿⣿⠞⠋⠀⠀⠀⠀⠀⢠⣽⡿⣇⣴⠎ ⠀⠉⠀⣸⣦⣤⡏⣿⣆⣿⣄⠀⠀⠀⠀⠈⠻⣽⣟⢻⣶⣦⣄⣀⣀⣀⣀⡠⠴⠾⣧⠞⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⢰⠃⠀⠀⢄⣢⣏⥥⠟⠓⠒⠒⣻⣦⡴⠾⠷⠶⠶⠟⠋⢹⣇⣿⡾⠋⠁⠀⠀⠀⡀⢢⣰⣼⣿⠋⣀⡽⠋⠀ ⠐⢀⡾⠋⢻⠏⠀⠈⢿⣀⡈⣇⠠⠀⢀⠀⠀⠀⠉⠻⠾⣿⣙⣏⣁⣀⣹⡧⠴⠊⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⣛⠀⠀⠠⢴⡿⠋⠀⢀⡴⠊⣉⣁⣈⣉⠓⢄⠀⠀⠀⠀⣸⡟⠉⠀⠀⠀⡀⢄⣣⡼⣿⠋⠉⢹⡿⠛⠀⠠⢀ ⣥⡾⣧⡴⠏⠀⠀⠀⠈⠿⡟⠛⠢⡄⠁⠔⢀⠀⠀⠀⠀⠀⠉⠙⠛⠿⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠐⠹⡀⠀⠐⢿⡇⠀⢀⡎⢠⠞⠉⠁⠈⠙⢷⡄⢣⠀⠀⣰⠏⠀⠀⠀⢄⡲⠾⢿⢀⣀⣸⣷⡿⠋⢀⠠⣨⣴⣾ ⣇⣤⠞⠀⠀⠀⠀⠀⠀⠀⠙⢶⣦⡟⠳⢦⣁⡐⢃⠄⣠⢀⠀⠀⠀⠀⠀⠉⠻⢦⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⡛⠓⡔⠀⠸⣇⠀⠸⣧⠸⡀⠀⠫⡱⡀⠀⡷⢈⡆⢰⡏⠀⠀⠠⣹⣿⣤⣤⡼⠟⢫⣿⠋⠀⢀⣠⣾⠋⡀⡿ ⠋⠁⠀⠀⣀⠤⠔⠒⠒⠤⣄⠀⠈⠳⢦⣼⣟⠉⢻⡶⠶⣴⣾⢤⣄⣐⣀⠄⠀⠀⠙⢷⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠐⢶⡮⣄⠀⠹⣦⠀⠛⠀⡑⠂⣐⡼⠁⢀⡟⠀⡇⣾⠁⠀⠈⢰⣇⣀⣹⠋⠀⣰⡿⠁⠀⣸⡏⣀⡼⠛⠉⠀ ⠀⠀⠀⡔⢡⡶⠞⠙⠳⠂⣄⠙⢦⠀⠀⠉⠛⠟⠻⠷⠴⠿⢧⣼⣿⣍⣿⢷⣅⠀⡀⠀⢻⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠸⣤⣈⡧⢤⡈⠓⢦⣥⣈⣉⣁⣠⣴⠟⣠⣾⣇⣿⠀⣐⠂⡿⠋⠹⠃⠀⢠⣿⠁⠉⣰⠋⡟⠁⠀⠀⠀⠀ ⠀⠀⢸⢠⠏⠀⠀⠀⠀⠀⠐⢥⠀⢳⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⠀⠈⠙⠻⣿⣧⠀⠀⠀⡿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠈⠙⣦⣀⣷⠦⢄⣀⣉⣉⠉⣉⠤⣶⠝⣃⣠⣿⡀⠄⠀⣿⠾⢶⠀⠀⣾⡇⠀⠀⣿⠎⠀⠀⠀⠀⠀⠀ ⡀⠀⠸⡈⢇⠀⠀⠀⠀⠀⠀⠘⡆⠈⡇⠀⠀⢀⡴⠋⣡⠤⠚⠷⠀⠀⠀⠀⠹⣿⡆⠀⠀⡹⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠦⠄⠺⣭⣤⠽⠓⠋⠁⢀⠉⡇⣹⡇⠒⠀⣧⣤⣨⠀⠀⣿⡇⠂⠀⡟⠀⠀⠀⠀⣠⠞⢋ ⣉⣝⡳⢿⡪⠭⠿⠝⠃⠀⠀⠀⡧⠀⣿⠀⢰⡝⠀⡼⠁⠀⠀⠀⠀⠀⠀⠀⠀⣿⠃⠉⠀⣥⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⠿⠃⡿⣿⡎⠀⠸⣏⢈⡇⠀⢹⣿⡁⠀⢻⡀⠀⢀⡞⠁⡰⡗ ⠙⠓⠺⣢⢹⡀⠀⠀⠀⠀⠀⢀⡇⢠⡏⠀⡏⡇⢸⠁⠀⠀⠀⠀⠀⠀⠀⠀⣸⡟⠀⠀⡈⡸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣤⠀⠀⠀⢰⣼⢲⡇⠘⣷⠁⠀⢹⣿⠛⡆⠈⣿⣧⠀⠀⢳⣤⡞⠀⣼⡞⠀ ⠀⠀⠀⢸⣧⠃⠀⠀⠀⠀⠀⡞⢠⣿⠃⠀⣿⡇⠘⡆⠀⠀⠀⠀⠀⠀⠀⣴⡟⠀⢰⠈⠙⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⢂⡵⠞⠃⠀⠀⣜⡻⢸⠃⠀⠘⢿⣄⠀⠙⢦⣿⡓⢸⣏⡳⡄⠀⠹⢷⣶⣡⠁⠀ ⠀⢠⣔⣫⠞⠀⠀⠀⠀⡠⠎⢀⡞⡏⠀⠀⠱⣼⣄⠙⢦⣀⣀⠀⢀⣠⣴⠟⠁⣠⣿⡶⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⢾⠀⠀⠀⠀⣰⡻⢁⡏⠀⠀⠀⠀⠙⢷⣄⠀⠈⠉⠉⠉⠻⡏⠱⢤⠀⠙⠻⠶⣤ ⡄⣀⣉⣀⣀⣠⡤⠖⢋⣠⡔⢉⡟⠀⠀⠀⠀⠙⠬⡷⠦⢌⣉⣙⠉⢉⣀⢤⣾⣀⡤⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⣌⠳⢦⣴⠾⢋⣠⠏⠀⠀⠀⠀⠀⠀⠀⠈⠛⠳⠶⠶⢶⠶⠿⠷⢶⡟⠒⠢⣀⣀ ⣀⣉⣉⣉⡡⢤⣤⠎⠉⡹⠛⠋⠀⠀⠀⠀⠀⠀⠀⠙⠦⠼⢧⣀⡽⢯⣤⠴⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠓⠒⠚⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⠀⠉⠲⠖⠿⢤⣁⣀⡿⣇⣀⡤⠋⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⋆.ೃ࿔*:･ଳ</pre>
+    </div>
+
+    <!-- COLUMNA DERECHA: LOGIN -->
     <section id="loginView" class="card login-card">
-      <h1>Acceso Clan Rover</h1>
-      <p>Grupo Scout Tazumal 97 · Vachalal Ah Puch. Ingresa con las credenciales asignadas.</p>
+      <span class="kicker">Rama Principal · Clan Rover</span>
+      <h1>Vachalal Ah Puch</h1>
+      <p>Grupo Scout Tazumal 97. Ingresa con tus credenciales asignadas para acceder al sistema.</p>
 
       <div id="loginError" class="error-msg"></div>
 
@@ -159,13 +361,14 @@
       </form>
     </section>
 
-    <!-- VISTA 2: PANTALLA DE INICIO -->
+    <!-- PANTALLA DE INICIO (DESPUÉS DE INICIAR SESIÓN) -->
     <section id="homeView" class="card hidden">
       <div class="topbar">
         <div>
           <span class="badge" id="sesionBadge">Sesión activa</span>
-          <h1 style="margin-top:8px;">Pantalla de Inicio</h1>
-          <p style="margin:0;">Selecciona el módulo con el que trabajarás hoy.</p>
+          <span class="kicker" style="margin-top:8px;">Grupo Scout Tazumal 97 · Rama Principal</span>
+          <h1>Pantalla de Inicio</h1>
+          <p style="margin:0;">Selecciona el módulo disponible para continuar.</p>
         </div>
         <button id="logoutBtn" class="secondary" type="button">Cerrar sesión</button>
       </div>
@@ -176,7 +379,7 @@
           <div>
             <span class="tag-estado tag-activo">Habilitado</span>
             <h3>Aspirante</h3>
-            <p style="margin:0;">Abre la Cartilla Digital y el Camino de Adelanto Rover.</p>
+            <p style="margin:0;">Abre la Cartilla Digital y el Camino de Adelanto Rover (16 pruebas).</p>
           </div>
           <button id="entrarAspiranteBtn" type="button">Entrar a Aspirante</button>
         </div>
@@ -186,7 +389,7 @@
           <div>
             <span class="tag-estado tag-bloqueado">En pausa</span>
             <h3>El Compromiso</h3>
-            <p style="margin:0;">Etapa posterior al aspirantado. Se habilitará en la siguiente fase.</p>
+            <p style="margin:0;">Etapa siguiente del clan. Se habilitará en una fase posterior.</p>
           </div>
           <button type="button" disabled>No disponible aún</button>
         </div>
@@ -196,7 +399,7 @@
           <div>
             <span class="tag-estado tag-bloqueado">En pausa</span>
             <h3>Navegación</h3>
-            <p style="margin:0;">Módulo de ruta y avance de etapa. Se habilitará más adelante.</p>
+            <p style="margin:0;">Módulo de ruta y avance. Se habilitará más adelante.</p>
           </div>
           <button type="button" disabled>No disponible aún</button>
         </div>
@@ -217,6 +420,7 @@
     const CLAVE_SESION = "sesion_rover_tazumal_97";
     const RUTA_ASPIRANTE = "index.html";
 
+    const mainLayout = document.getElementById("mainLayout");
     const loginView = document.getElementById("loginView");
     const homeView = document.getElementById("homeView");
     const loginForm = document.getElementById("loginForm");
@@ -237,24 +441,29 @@
       loginError.style.display = "none";
       loginView.classList.add("hidden");
       homeView.classList.remove("hidden");
+      mainLayout.classList.add("home-active");
     }
 
     loginForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      const userVal = normalizarUsuario(document.getElementById("usuarioInput").value);
-      const passVal = document.getElementById("passwordInput").value.trim();
+
+      const rawUser = document.getElementById("usuarioInput").value || "";
+      const rawPass = document.getElementById("passwordInput").value || "";
+
+      const userVal = normalizarUsuario(rawUser);
+      const passVal = rawPass.trim();
 
       const cuenta = CREDENCIALES_ASIGNADAS.find(
         (c) => normalizarUsuario(c.usuario) === userVal
       );
 
       if (!cuenta) {
-        mostrarError(`Usuario no encontrado ("${userVal}"). Usa: gabriela Amaya`);
+        mostrarError(`Usuario no encontrado ("${rawUser}"). Usa: gabriela Amaya`);
         return;
       }
 
       if (cuenta.password !== passVal) {
-        mostrarError("Contraseña incorrecta. Verifica que sea: 123456");
+        mostrarError(`Contraseña incorrecta ("${rawPass}"). Verifica que sea: 123456`);
         return;
       }
 
@@ -268,7 +477,6 @@
       mostrarInicio(cuenta);
     });
 
-    // Redirige a la página de Cartilla Digital (index.html)
     document.getElementById("entrarAspiranteBtn").addEventListener("click", () => {
       window.location.href = RUTA_ASPIRANTE;
     });
@@ -278,6 +486,7 @@
       loginForm.reset();
       homeView.classList.add("hidden");
       loginView.classList.remove("hidden");
+      mainLayout.classList.remove("home-active");
     });
 
     const sesionGuardada = sessionStorage.getItem(CLAVE_SESION);
