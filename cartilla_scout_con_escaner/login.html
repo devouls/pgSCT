@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acceso — Clan Rover Vachalal Ah Puch</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #10b981;
+      --accent-dark: #059669;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .app-shell {
+      width: 100%;
+      max-width: 860px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+    }
+    .login-card {
+      max-width: 420px;
+      margin: 0 auto;
+    }
+    h1, h3 { margin: 0 0 8px 0; }
+    h1 { font-size: 1.35rem; }
+    p { color: var(--muted); margin: 0 0 14px 0; font-size: 0.92rem; line-height: 1.4; }
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      margin-bottom: 5px;
+    }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      background: #0f172a;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+    }
+    button {
+      background: var(--accent);
+      color: #052e16;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+    button:hover { background: var(--accent-dark); color: #fff; }
+    button.secondary {
+      background: #334155;
+      color: var(--text);
+      font-weight: 600;
+    }
+    button.secondary:hover { background: #475569; }
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .error-msg {
+      color: #fca5a5;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.86rem;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(16, 185, 129, 0.15);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .grid-modulos {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .modulo-card {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .modulo-card.activo { border-color: var(--accent); }
+    .modulo-card.bloqueado { opacity: 0.65; }
+    .tag-estado {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+    .tag-activo { background: #064e3b; color: #6ee7b7; }
+    .tag-bloqueado { background: #1e293b; color: #94a3b8; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- VISTA 1: LOGIN -->
+    <section id="loginView" class="card login-card">
+      <h1>Acceso Clan Rover</h1>
+      <p>Grupo Scout Tazumal 97 · Vachalal Ah Puch. Ingresa con las credenciales asignadas.</p>
+
+      <div id="loginError" class="error-msg"></div>
+
+      <form id="loginForm" autocomplete="off">
+        <label for="usuarioInput">Usuario asignado</label>
+        <input id="usuarioInput" type="text" autocomplete="off" placeholder="gabriela Amaya" required />
+
+        <label for="passwordInput">Contraseña</label>
+        <input id="passwordInput" type="password" autocomplete="new-password" placeholder="123456" required />
+
+        <button type="submit" style="width:100%;">Iniciar sesión</button>
+      </form>
+    </section>
+
+    <!-- VISTA 2: PANTALLA DE INICIO -->
+    <section id="homeView" class="card hidden">
+      <div class="topbar">
+        <div>
+          <span class="badge" id="sesionBadge">Sesión activa</span>
+          <h1 style="margin-top:8px;">Pantalla de Inicio</h1>
+          <p style="margin:0;">Selecciona el módulo con el que trabajarás hoy.</p>
+        </div>
+        <button id="logoutBtn" class="secondary" type="button">Cerrar sesión</button>
+      </div>
+
+      <div class="grid-modulos">
+        <!-- ASPIRANTE -> REDIRIGE A index.html -->
+        <div class="modulo-card activo">
+          <div>
+            <span class="tag-estado tag-activo">Habilitado</span>
+            <h3>Aspirante</h3>
+            <p style="margin:0;">Abre la Cartilla Digital y el Camino de Adelanto Rover.</p>
+          </div>
+          <button id="entrarAspiranteBtn" type="button">Entrar a Aspirante</button>
+        </div>
+
+        <!-- EL COMPROMISO (BLOQUEADO) -->
+        <div class="modulo-card bloqueado">
+          <div>
+            <span class="tag-estado tag-bloqueado">En pausa</span>
+            <h3>El Compromiso</h3>
+            <p style="margin:0;">Etapa posterior al aspirantado. Se habilitará en la siguiente fase.</p>
+          </div>
+          <button type="button" disabled>No disponible aún</button>
+        </div>
+
+        <!-- NAVEGACION (BLOQUEADO) -->
+        <div class="modulo-card bloqueado">
+          <div>
+            <span class="tag-estado tag-bloqueado">En pausa</span>
+            <h3>Navegación</h3>
+            <p style="margin:0;">Módulo de ruta y avance de etapa. Se habilitará más adelante.</p>
+          </div>
+          <button type="button" disabled>No disponible aún</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const CREDENCIALES_ASIGNADAS = [
+      {
+        usuario: "gabriela Amaya",
+        password: "123456",
+        nombre: "Gabriela Amaya",
+        rol: "Usuario Clan"
+      }
+    ];
+
+    const CLAVE_SESION = "sesion_rover_tazumal_97";
+    const RUTA_ASPIRANTE = "index.html";
+
+    const loginView = document.getElementById("loginView");
+    const homeView = document.getElementById("homeView");
+    const loginForm = document.getElementById("loginForm");
+    const loginError = document.getElementById("loginError");
+    const sesionBadge = document.getElementById("sesionBadge");
+
+    function normalizarUsuario(texto) {
+      return String(texto || "").trim().toLowerCase().replace(/\s+/g, " ");
+    }
+
+    function mostrarError(msg) {
+      loginError.textContent = msg;
+      loginError.style.display = "block";
+    }
+
+    function mostrarInicio(usuarioObj) {
+      sesionBadge.textContent = `${usuarioObj.nombre} (${usuarioObj.rol})`;
+      loginError.style.display = "none";
+      loginView.classList.add("hidden");
+      homeView.classList.remove("hidden");
+    }
+
+    loginForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const userVal = normalizarUsuario(document.getElementById("usuarioInput").value);
+      const passVal = document.getElementById("passwordInput").value.trim();
+
+      const cuenta = CREDENCIALES_ASIGNADAS.find(
+        (c) => normalizarUsuario(c.usuario) === userVal
+      );
+
+      if (!cuenta) {
+        mostrarError(`Usuario no encontrado ("${userVal}"). Usa: gabriela Amaya`);
+        return;
+      }
+
+      if (cuenta.password !== passVal) {
+        mostrarError("Contraseña incorrecta. Verifica que sea: 123456");
+        return;
+      }
+
+      sessionStorage.setItem(CLAVE_SESION, JSON.stringify({
+        usuario: cuenta.usuario,
+        nombre: cuenta.nombre,
+        rol: cuenta.rol,
+        horaLogin: new Date().toISOString()
+      }));
+
+      mostrarInicio(cuenta);
+    });
+
+    // Redirige a la página de Cartilla Digital (index.html)
+    document.getElementById("entrarAspiranteBtn").addEventListener("click", () => {
+      window.location.href = RUTA_ASPIRANTE;
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      sessionStorage.removeItem(CLAVE_SESION);
+      loginForm.reset();
+      homeView.classList.add("hidden");
+      loginView.classList.remove("hidden");
+    });
+
+    const sesionGuardada = sessionStorage.getItem(CLAVE_SESION);
+    if (sesionGuardada) {
+      try {
+        const parsed = JSON.parse(sesionGuardada);
+        if (parsed?.usuario) mostrarInicio(parsed);
+      } catch (_) {
+        sessionStorage.removeItem(CLAVE_SESION);
+      }
+    }
+  </script>
+</body>
+</html>
